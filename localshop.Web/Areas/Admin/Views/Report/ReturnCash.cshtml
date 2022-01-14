@@ -1,0 +1,118 @@
+﻿
+
+@using localshop.Core.Common
+@model IEnumerable<InvoiceTotalViewModel>
+@{
+    ViewBag.Title = "ReturnCash";
+}
+
+@section topbar {
+    @Html.Action("topbar", "nav", new { header = NavigationHeader.Order })
+}
+
+@section thirdPartyCss {
+    @Styles.Render("~/content/admin/css/datatables_sweetalert", "~/content/admin/css/toastr")
+}
+
+@section thirdPartyJs {
+    @Scripts.Render("~/content/admin/js/datatables_sweetalert", "~/content/admin/js/toastr")
+
+    <!-- Controller -->
+    @Scripts.Render("~/content/admin/js/order/index");
+}
+
+<div class="row ">
+    <div class="col-md-4">
+        <div class="row">
+            <div class="col-md-10">
+                Supplier<br />
+                <select id="SelectSupplier" class="form-control " onchange="SelectVendor(value)"></select>
+                <span class="error"> *Please select a Vendor</span>
+
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-12">
+        <div class="card-box overflow-auto">
+            <table id="datatable" class="table table-striped table-bordered nowrap">
+                <thead>
+                    <tr>
+
+                        <th>Date</th>
+                        <th>Total</th>
+                        <th>Sub Total</th>
+                        <th>Deduction %</th>
+                        <th>Deduction Amount</th>
+                        <th>Tex</th>
+                        <th>Return Amount</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    @foreach (var o in Model)
+                    {
+                        <tr data-orderid="@o.StartDate">
+                            <td>@o.StartDate</td>
+                            <td>@o.Total</td>
+                            <td>@o.SubTotal</td>
+                            <td>@o.DetuctionPersontage</td>
+                            <td>@o.Detuction</td>
+                            <td>@o.Tex</td>
+                            <td>@o.ReturnTotal</td>
+                        </tr>
+                    }
+
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div> <!-- end row -->
+<script src="~/Assets/client/js/vendor/jquery-3.3.1.min.js"></script>
+<script>
+
+    populateSupplier();
+    function populateSupplier() {
+        $.get('/Report/getVendors', {}, function (data) {
+            $('#SelectSupplier').empty();
+            $('#SelectSupplier').append($("<option value='0'>Select Vendors</option>"));
+            $.each(data, function (key, value) {
+                $('#SelectSupplier').append($("<option></option>").val(value.UserId).html(value.UserName));
+            });
+        }, 'json');
+    }
+
+
+    function SelectVendor(value) {
+        //post data to server
+        $.ajax({
+            url: '/Report/ReturnCashVenderByUserId?userId=' + value,
+            type: "get",
+            dataType: "JSON",
+            contentType: "application/json",
+            success: function (d) {
+                //check is successfully save to database
+                if (d.status == true) {
+                    //will send status from server side
+                    alert('Successfully done.');
+                    location.reload(true);
+                    //clear form
+                    purchaseItems = [];
+                    $('#PurchaseID').val('');
+                    $('#InvocingDate').val('');
+                    $('#SelectSupplier').val('0');
+
+                }
+                else {
+                    alert('Failed');
+                }
+                $('#submit').val('Save');
+            },
+            error: function () {
+                alert('Error. Please try again.');
+                $('#btnSubmit').val('Save');
+            }
+        });
+    }
+</script>
