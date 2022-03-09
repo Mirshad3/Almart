@@ -16,7 +16,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>localshop</RootNamespace>
     <AssemblyName>localshop</AssemblyName>
-    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <MvcBuildViews>false</MvcBuildViews>
     <UseIISExpress>true</UseIISExpress>
     <Use64BitIISExpress />
@@ -154,6 +154,7 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
+    <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Net" />
     <Reference Include="System.Net.Http, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
@@ -218,6 +219,7 @@
       <Private>True</Private>
       <HintPath>..\packages\Microsoft.AspNet.WebPages.3.2.7\lib\net45\System.Web.WebPages.Razor.dll</HintPath>
     </Reference>
+    <Reference Include="System.Xml.Linq" />
     <Reference Include="WebGrease">
       <Private>True</Private>
       <HintPath>..\packages\WebGrease.1.6.0\lib\WebGrease.dll</HintPath>
@@ -1034,6 +1036,7 @@
     <Content Include="Assets\files\images\Products\thinkpadx1extremegen2\71r9EEW9b8L__SL1317_.jpg" />
     <Content Include="Assets\files\images\Products\thinkpadx1extremegen2\71RuTo9b8pL__SL1500_.jpg" />
     <Content Include="Assets\files\images\SpecialFeatured\hm5-single-1_8287a2dd-8e8b-4153-827f-f3220e2b1d15_large.png" />
+    <Content Include="Assets\images\1509483582.svg" />
     <Content Include="Assets\images\useravatars\user_1b163a52-6387-43b1-9258-1b73f20fa68d.jpg" />
     <Content Include="Assets\plugins\ckeditor5-build-classic-16.0.0\ckeditor.js" />
     <Content Include="Assets\plugins\ckeditor5-build-classic-16.0.0\ckeditor.js.map" />

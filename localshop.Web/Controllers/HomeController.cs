@@ -2,6 +2,7 @@
 using localshop.Core.DTO;
 using localshop.Domain.Abstractions;
 using localshop.ViewModels;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,6 +11,7 @@ using System.Web.Mvc;
 
 namespace localshop.Controllers
 {
+    [RoutePrefix("Home")]
     public class HomeController : Controller
     {
         private IHomePageRepository _homePageRepo;
@@ -86,67 +88,64 @@ namespace localshop.Controllers
             return View(model);
         }
         [HttpGet]
-        public JsonResult getBanners()
+        public JsonResult Banners()
         {
-            // Prepare model
-            var model = new HomePageViewModel
+            try
             {
-                SpecialFeatured = _homePageRepo.SpecialFeaturedList,
-                Banners = _homePageRepo.Banners,
-                Featureds = new List<ProductViewModel>(),
-                OnSales = new List<ProductViewModel>()
-            };
-
-            var products = _productRepo.Products.ToList()
-                .Where(p => _statusRepo.GetStatus(p.StatusId) != StatusNames.OutOfStock)
-                .OrderByDescending(p => p.DateAdded);
-
-            // Get featureds
-            var featureds = products.Where(p => p.IsFeatured == true).Take(8).ToList();
-            foreach (var p in featureds)
-            {
-                p.Images = _productRepo.GetImages(p.Id).ToList();
-
-                var product = new ProductViewModel
-                {
-                    Product = p,
-                    Status = _statusRepo.GetStatus(p.StatusId),
-                    Category = _categoryRepo.GetCategory(p.CategoryId),
-                    Reviews = _reviewRepo.GetReviews(p.Id).ToList()
-                };
-
-                model.Featureds.Add(product);
+                var model = _homePageRepo.Banners;
+            foreach(var m in model)
+            { 
+                m.Image = "http://almart.medco.lk/Assets/files/images/" + m.Image.Split('=').Last();
             }
-
-            // Get onSales
-            var onSales = products.Where(p =>
-            {
-                if (p.DiscountPrice != null)
-                {
-                    return _productRepo.GetRealPrice(p) == p.DiscountPrice.Value;
-                }
-                return false;
-            }).Take(8).ToList();
-            foreach (var p in onSales)
-            {
-                p.Images = _productRepo.GetImages(p.Id).ToList();
-
-                var product = new ProductViewModel
-                {
-                    Product = p,
-                    Status = _statusRepo.GetStatus(p.StatusId),
-                    Category = _categoryRepo.GetCategory(p.CategoryId),
-                    Reviews = _reviewRepo.GetReviews(p.Id).ToList()
-                };
-
-                model.OnSales.Add(product);
+                var result = new { data = model, status = "200", message = "Sucesss" };
+                return Json(result, JsonRequestBehavior.AllowGet);
             }
-            return this.Json(model, JsonRequestBehavior.AllowGet); 
+            catch (Exception ex)
+            {
+                return Json(new { message = ex.Message, status = "500", data = "" });
+            }
         }
         [HttpGet]
-        public JsonResult getCategories()
+        public JsonResult OnSale()
         {
-            var model = new List<CategoryViewModel>();
+            try
+            {
+                var model = new List<ProductDTO>();
+                var products = _productRepo.Products.ToList()
+                      .Where(p => _statusRepo.GetStatus(p.StatusId) != StatusNames.OutOfStock)
+                      .OrderByDescending(p => p.DateAdded);
+                // Get onSales
+                var onSales = products.Where(p =>
+                {
+                    if (p.DiscountPrice != null)
+                    {
+                        return _productRepo.GetRealPrice(p) == p.DiscountPrice.Value;
+                    }
+                    return false;
+                }).Take(8).ToList();
+                foreach (var p in onSales)
+                {
+                    p.Images = _productRepo.GetImages(p.Id).ToList(); 
+
+                    model.Add(p);
+                }
+                var result = new { data = model, status = "200", message = "Sucesss" };
+                return Json(result, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new {  message = ex.Message, status= "500", data = "" });
+            }
+        }
+
+
+
+        [Route("~/api/categories")]
+        public JsonResult categories()
+        {
+            try
+            {
+                var model = new List<CategoryViewModel>();
             var categories = _categoryRepo.Categories.Where(m=>m.ParentId == null && m.IsActive);
             foreach (var p in categories)
             {
@@ -154,15 +153,43 @@ namespace localshop.Controllers
                 {
                     Id = p.Id,
                     Name = p.Name,
-                    Logo = p.Logo,                  
-                   Categories = _categoryRepo.Categories.Where(m=>m.ParentId == p.Id)
+                    Logo = "http://almart.medco.lk/Assets/images/1509483582.svg",                  
+                   //Categories = _categoryRepo.Categories.Where(m=>m.ParentId == p.Id)
                     
                 };
                 model.Add(models);
             }
-            return this.Json(model, JsonRequestBehavior.AllowGet);
+                var result = new { data = model, status = "200", message = "Sucesss" };
+                return Json(result, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { result = false, error = ex.Message });
+            }
+           
+            
         }
-       public ActionResult Home()
+        [HttpGet]
+        public JsonResult Products(string categoryId,int page, int limit)
+        {
+            try
+            {
+                var products = _productRepo.Products.ToList()
+                     .Where(p => _statusRepo.GetStatus(p.StatusId) != StatusNames.OutOfStock && p.CategoryId == categoryId)
+                     .OrderByDescending(p => p.DateAdded); 
+                var model = products.Skip((page - 1) * limit).Take(limit).ToList();
+                var metadata = new { page = page, limit = limit , total = products.Count() };
+                var result = new { data = model, status = "200", message = "Sucesss", meta= metadata };
+                return Json(result, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { result = false, error = ex.Message });
+            }
+
+        }
+
+        public ActionResult Home()
         {
             // Prepare model
             var model = new HomePageViewModel

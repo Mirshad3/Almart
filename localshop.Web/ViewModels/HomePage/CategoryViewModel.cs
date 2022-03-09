@@ -11,8 +11,8 @@ namespace localshop.ViewModels
     {
         public string Id { get; set; }         
         public string Name { get; set; }
-        public string Logo { get; set; }
+        public string Logo { get; set; } = "~/Assets/images/1509483582.svg";
 
-        public IEnumerable<CategoryDTO> Categories { get; set; }
+        //public IEnumerable<CategoryDTO> Categories { get; set; }
     }
 }

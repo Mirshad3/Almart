@@ -30,6 +30,7 @@ namespace localshop
                 constraints: new { controller = new ListRouteConstraint(ListRouteConstraintType.Exclude, "product") },
                 namespaces: new[] { "localshop.Controllers" }
             );
+            
         }
     }
 }
